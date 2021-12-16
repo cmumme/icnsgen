@@ -1,0 +1,39 @@
+# icnsgen
+# Used to convert .png files to icns iconsets.
+# Partially written by Camren Mumme
+
+export WithExtension=$1
+export error=false
+export Project="${WithExtension%.*}"
+export Extension="${WithExtension##*.}"
+export IconDirectory=./$Project.iconset
+export Icon=./$Project.png
+
+if [ $WithExtension ] && [ -f $WithExtension ] && [ $Extension == "png" ]; then
+  mkdir $IconDirectory >/dev/null
+
+  # Regular
+  for Size in 16 32 64 128 256 512; do
+    sips -z $Size $Size $Icon --out $IconDirectory/icon_${Size}x${Size}.png >/dev/null
+  done
+
+  # Retina
+  for Size in 32 64 256 512; do
+    sips -z $Size $Size $Icon --out $IconDirectory/icon_$(expr $Size / 2)x$(expr $Size / 2)x2.png >/dev/null
+  done
+
+  # Package all to ICNS
+  iconutil -c icns -o ./$Project.icns $IconDirectory >/dev/null
+  rm -rf $IconDirectory >/dev/null
+  error=0
+else
+  error=1
+fi
+
+if [ $error == 0 ]; then
+  echo "\x1b[32msuccess\x1b[0m Converted $1 to a full .icns file!"
+  exit 0
+else
+  echo "\x1b[31merror\x1b[0m An error occured while converting $1 to an .icns file. (is it a png file?)"
+  exit 1
+fi
