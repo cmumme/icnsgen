@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # icnsgen
 # Used to convert .png files to icns iconsets.
 # Partially written by Camren Mumme
